@@ -13,6 +13,9 @@ class App extends Component {
         <p className="App-intro">
           To get started, edit <code>src/App.js</code> and save to reload.
       hello word !!!!!
+      var pattern = /\d{0,3}\.\d{0,3}\.\d{0,3}\.\d{0,3}/g,
+	str = '';
+console.log(pattern.test(str));
         </p>
       </div>
     );
