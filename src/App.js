@@ -18,7 +18,7 @@ const cache = {}
 // 匹配模板id
 const idReg = /[\s\W]/g
 // 匹配JavaScript语句或变量
-const tplReg = /<%=?\s*([^%>]+?)\s*%>/g
+const tplReg = /< % =?\s*([^%>]+?)\s*%>/g
 // 匹配各种关键字
 const keyReg = /(for|if|else|switch|case|break|{|})/g
 
