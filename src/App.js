@@ -12,12 +12,52 @@ class App extends Component {
         </header>
         <p className="App-intro">
           To get started, edit <code>src/App.js</code> and save to reload.
-	    访问 Jenkins/Blue Ocean Docker 容器
-	    漏洞是什么
+    let tpl = ''
+let match = ''
+const cache = {}
+// 匹配模板id
+const idReg = /[\s\W]/g
+// 匹配JavaScript语句或变量
+const tplReg = /<%=?\s*([^%>]+?)\s*%>/g
+// 匹配各种关键字
+const keyReg = /(for|if|else|switch|case|break|{|})/g
 
-国内牛人开发了一套牛逼的搜索引擎-钟馗之眼，可以扫描出主机上的暴露的端口。在ZoomEye.org上输入关键字docker port:2375，立即可以扫描出所有暴露了2375端口的Docker主机。因为没有加密，知道了主机IP以后，黑客就可以为所欲为了。
+const add = (str, result, js) => {
+	str = str.replace(/[\r\n\t]/g, '')
+		.replace(/\\/g, '\\\\')
+		.replace(/'/g, "\\'")
+	result += js ? str.match(keyReg) ? `${str}` : `result.push(${str});` : `result.push('${str}');`
+	return result
+}
 
-目前全球有717台机器暴露出2375端口！真是可怕了！
+const tmpl = (str, data) => {
+	let cursor = 0
+	let result = 'let result = [];'
+        // 如果是模板字符串，会包含非单词部分（<, >, %,  等）；如果是id，则需要通过getElementById获取
+	if (!idReg.test(str)) {
+		tpl = document.getElementById(str).innerHTML
+		// 缓存处理
+		if (cache[str]) {
+			return cache[str].apply(data)
+		}
+	} else {
+		tpl = str
+	}
+	// 使用exec函数，动态改变index的值
+	while (match = tplReg.exec(tpl)) {
+		result = add(tpl.slice(cursor, match.index), result) // 匹配HTML结构
+		result = add(match[1], result, true)		     // 匹配JavaScript语句、变量
+		cursor = match.index + match[0].length		     // 改变HTML结果匹配的开始位置
+	}
+	result = add(tpl.slice(cursor), result)		             // 匹配剩余的HTML结构
+	result += 'return result.join("")'
+	let fn = new Function(result)		                     // 转成可执行的JS代码
+	if (!cache[str] && !idReg.test(str)) {                       // 只有传入的是id的情况下才缓存模板
+		cache[str] = fn
+	}
+	return fn.apply(data)		                              // apply改变函数执行的作用域
+}
+
            </p>
       </div>
     );
